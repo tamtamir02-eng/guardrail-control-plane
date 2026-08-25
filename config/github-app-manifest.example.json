@@ -1,0 +1,23 @@
+{
+  "name": "Tamir Guardrail V4.2 Pilot",
+  "url": "https://github.com/tamtamir02-eng/guardrail-control-plane",
+  "description": "Shadow-mode trusted policy check for the Guardrail V4.2 pilot",
+  "public": false,
+  "hook_attributes": {
+    "url": "https://REPLACE_WITH_DEPLOYMENT_HOST/webhook",
+    "active": true
+  },
+  "default_events": [
+    "pull_request",
+    "pull_request_review",
+    "push"
+  ],
+  "default_permissions": {
+    "metadata": "read",
+    "contents": "read",
+    "pull_requests": "read",
+    "checks": "write"
+  },
+  "request_oauth_on_install": false,
+  "setup_on_update": false
+}

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "policy_version": "4.2.0-shadow",
+  "default_classification": "YELLOW",
+  "authorized_reviewers": [],
+  "machine_identity_patterns": [
+    "\\[bot\\]$",
+    "(^|[-_])bot($|[-_])",
+    "codex",
+    "github-actions",
+    "dependabot",
+    "renovate"
+  ],
+  "classifications": {
+    "GREEN": [
+      "README.md",
+      "docs/**",
+      "**/*.md"
+    ],
+    "YELLOW": [
+      "src/**",
+      "lib/**",
+      "app/**",
+      "tests/**",
+      "test/**",
+      "package.json",
+      "package-lock.json"
+    ],
+    "RED": [
+      "auth/**",
+      "security/**",
+      "payments/**",
+      "billing/**",
+      "database/**",
+      "migrations/**",
+      "infrastructure/**",
+      "infra/**",
+      "iam/**",
+      "secrets/**",
+      "crypto/**",
+      "production/**",
+      "terraform/**",
+      "kubernetes/**"
+    ],
+    "CONTROL_PLANE": [
+      ".github/workflows/**",
+      ".github/actions/**",
+      ".github/CODEOWNERS",
+      "CODEOWNERS",
+      "**/CODEOWNERS",
+      ".codex/**",
+      "AGENTS.md",
+      "**/AGENTS.md",
+      "RISK_POLICY.md",
+      "**/RISK_POLICY.md",
+      "**/*risk-policy*",
+      ".guardrail/**",
+      "guardrail/**",
+      "**/guardrail-policy.*",
+      "scripts/guardrail-**",
+      "scripts/guardrail_**",
+      ".github/dependabot.yml",
+      ".github/codeql/**",
+      "**/security-policy.*",
+      "deployment/**",
+      "deploy/**"
+    ]
+  }
+}
