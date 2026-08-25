@@ -20,9 +20,10 @@ function validateBranch(branch) {
   return branch
 }
 
-function secureGitEnvironment(token, hooksDirectory) {
+export function secureGitEnvironment(token, hooksDirectory) {
+  const basicCredential = Buffer.from(`x-access-token:${token}`, 'utf8').toString('base64')
   const config = [
-    ['http.extraHeader', `Authorization: Bearer ${token}`],
+    ['http.extraHeader', `Authorization: Basic ${basicCredential}`],
     ['protocol.allow', 'never'],
     ['protocol.https.allow', 'always'],
     ['core.hooksPath', hooksDirectory],
