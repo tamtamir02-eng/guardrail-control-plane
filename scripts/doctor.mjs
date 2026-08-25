@@ -9,11 +9,15 @@ const requiredFiles = [
   'TRUST_MODEL_HE.md',
   'CODEX_LEAST_PRIVILEGE_GUIDE_HE.md',
   'GITHUB_APP_SETUP_HE.md',
+  'GITHUB_APP_MANUAL_SETUP_HE.md',
   'SHADOW_PILOT_REPORT_HE.md',
   'CUTOVER_PLAN_HE.md',
   'ANTI_DUPLICATION_AUDIT_HE.md',
   'config/policy.v4.2.json',
   'config/github-app-manifest.example.json',
+  '.env.example',
+  'scripts/preflight.mjs',
+  'scripts/start-local.ps1',
   'src/approval.mjs',
   'src/evaluation.mjs',
   'src/github-client.mjs',
@@ -88,8 +92,28 @@ if (existsSync('config/github-app-manifest.example.json')) {
 
 if (existsSync('.gitignore')) {
   const ignore = readFileSync('.gitignore', 'utf8')
-  for (const marker of ['.env', '*.pem', '*.key', 'secrets/']) {
+  for (const marker of ['.env', '.env.*', '!.env.example', '*.pem', '*.key', '*.p12', '*.pfx', '*.jks', 'secrets/']) {
     if (!ignore.includes(marker)) failures.push(`.gitignore lacks ${marker}`)
+  }
+}
+
+if (existsSync('.env.example')) {
+  const example = readFileSync('.env.example', 'utf8')
+  const configuredValues = example.split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith('#'))
+    .map((line) => line.slice(line.indexOf('=') + 1))
+  if (configuredValues.some((value) => !/^<[A-Z0-9_]+>$/.test(value))) {
+    failures.push('.env.example contains a non-placeholder value')
+  }
+  if (!example.includes('GUARDRAIL_TARGET_REPOSITORY=<EXACT_TARGET_REPOSITORY>')) {
+    failures.push('.env.example target repository is not a placeholder')
+  }
+  if (!example.includes('GUARDRAIL_EXPECTED_COMMIT=<FULL_APPROVED_CONTROL_PLANE_COMMIT_SHA>')) {
+    failures.push('.env.example commit is not a placeholder')
+  }
+  if (!example.includes('HOST=<LOCAL_LOOPBACK_HOST>') || !example.includes('PORT=<LOCAL_PORT>')) {
+    failures.push('.env.example endpoint values are not placeholders')
   }
 }
 

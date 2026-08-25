@@ -11,8 +11,10 @@
     "lint": "node scripts/lint.mjs",
     "test": "node --test",
     "doctor": "node scripts/doctor.mjs",
+    "preflight": "node scripts/preflight.mjs",
     "shadow:fixtures": "node scripts/run-shadow-fixtures.mjs",
-    "start": "node src/server.mjs"
+    "start": "node src/server.mjs",
+    "start:local": "powershell.exe -NoProfile -File scripts/start-local.ps1"
   },
   "license": "UNLICENSED"
 }

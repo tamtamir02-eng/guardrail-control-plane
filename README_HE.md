@@ -38,6 +38,8 @@ npm run shadow:fixtures
 npm run doctor
 ```
 
+להכנת Live Shadow מקומי ב־Windows בלבד, ללא יצירת משאב חיצוני, ראה `GITHUB_APP_MANUAL_SETUP_HE.md`. פקודת `npm run preflight` בודקת secrets מקומיים, repository יעד, commit pinned, working tree נקי ו־port פנוי. `scripts/start-local.ps1` טוען את הקובץ החיצוני `%LOCALAPPDATA%\GuardrailV4.2\guardrail.env`, מריץ preflight ורק אז מפעיל את `127.0.0.1:3000/webhook`.
+
 אין dependencies חיצוניות. נדרשים Node.js 20 ומעלה ו־Git CLI.
 
 ## מצב נוכחי

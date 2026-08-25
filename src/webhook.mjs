@@ -28,6 +28,20 @@ function parseRepository(payload) {
   return { owner: match[1], repo: match[2] }
 }
 
+function parseAllowedRepository(value) {
+  const match = /^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/.exec(value ?? '')
+  if (!match) throw new FailClosedError('GUARDRAIL_TARGET_REPOSITORY is not configured')
+  return { owner: match[1], repo: match[2] }
+}
+
+function assertAllowedRepository(actual, configured) {
+  const allowed = parseAllowedRepository(configured)
+  if (actual.owner.toLowerCase() !== allowed.owner.toLowerCase()
+    || actual.repo.toLowerCase() !== allowed.repo.toLowerCase()) {
+    throw new FailClosedError('Webhook repository is outside the configured target')
+  }
+}
+
 export async function processWebhook({
   event,
   signature,
@@ -46,6 +60,7 @@ export async function processWebhook({
   }
 
   const { owner, repo } = parseRepository(payload)
+  assertAllowedRepository({ owner, repo }, env.GUARDRAIL_TARGET_REPOSITORY)
   const installationId = payload?.installation?.id
   const tokenFactory = dependencies.tokenFactory ?? createInstallationToken
   const token = await tokenFactory({

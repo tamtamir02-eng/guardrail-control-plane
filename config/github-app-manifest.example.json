@@ -4,7 +4,7 @@
   "description": "Shadow-mode trusted policy check for the Guardrail V4.2 pilot",
   "public": false,
   "hook_attributes": {
-    "url": "https://REPLACE_WITH_DEPLOYMENT_HOST/webhook",
+    "url": "https://smee.io/REPLACE_WITH_CHANNEL_ID",
     "active": true
   },
   "default_events": [

@@ -1,5 +1,7 @@
 # הקמה ידנית של GitHub App — נקודת עצירה מאושרת
 
+> מסמך זה מתאר deployment עתידי hosted. עבור ה־Local Live Shadow ב־Windows השתמש ב־`GITHUB_APP_MANUAL_SETUP_HE.md`; הוא המסמך הסמכותי לשלב הנוכחי.
+
 רישום App דורש פעולה שלך בממשק GitHub ו־deployment HTTPS נגיש ל־webhooks. אין לשלוח private key או webhook secret בצ׳אט.
 
 ## לפני הרישום
