@@ -19,7 +19,7 @@
 
 ## רכיבים
 
-- `config/policy.v4.2.json` — policy bundle סמכותי, כולל GREEN/YELLOW/RED/CONTROL_PLANE ורשימת approvers ריקה ב־Pilot.
+- `config/policy.v4.2.json` — policy bundle סמכותי, כולל GREEN/YELLOW/RED/CONTROL_PLANE ורשימת approvers המכילה רק את `tamtamir02-eng`.
 - `src/trusted-git.mjs` — fetch metadata מבודד; אינו עושה checkout ואינו מריץ תוכן target.
 - `src/git-diff.mjs` — merge-base ו־A/M/D/R/C parsing.
 - `src/policy.mjs` — classification failure-closed.

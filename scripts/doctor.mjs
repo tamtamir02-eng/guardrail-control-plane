@@ -65,7 +65,9 @@ inspect()
 
 try {
   const policy = loadPolicy()
-  if (policy.authorized_reviewers.length !== 0) failures.push('Pilot must not invent an authorized reviewer')
+  if (JSON.stringify(policy.authorized_reviewers) !== JSON.stringify(['tamtamir02-eng'])) {
+    failures.push('Authorized reviewers differ from the approved human identity')
+  }
 } catch (error) {
   failures.push(error.message)
 }
