@@ -1,6 +1,6 @@
-# הכנת GitHub App ידנית ל־Local Live Shadow ב־Windows
+# HISTORICAL / SUPERSEDED — הכנת GitHub App ל־Local Live Shadow ב־Windows
 
-מסמך זה הוא הוראות עתידיות בלבד. הכנת הקוד המקומית אינה יוצרת GitHub App, ערוץ Smee או התקנה, אינה משנה Ruleset ואינה מתחילה Live Shadow.
+> מסמך זה נשמר כדי לתעד את שלב ההקמה המקומי שכבר בוצע. הוא אינו runbook למצב הפעיל. לתצורה הנוכחית ראו `GUARDRAIL_ARCHITECTURE_FINAL_HE.md`; לתכנון hosting עתידי ראו `GITHUB_APP_SETUP_HE.md`.
 
 ## גבולות הניסוי
 

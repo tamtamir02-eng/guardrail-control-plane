@@ -1,4 +1,6 @@
-# Shadow Pilot Report — V4.2
+# HISTORICAL / SUPERSEDED — Shadow Pilot Report V4.2
+
+> מסמך זה משמר את תוצאות שלב ה־Shadow. ה־cutover הושלם לאחר מכן: `guardrail-v4.2` הוא required check ו־`guardrail-policy` אינו required. לתיאור המצב הנוכחי ראו `GUARDRAIL_ARCHITECTURE_FINAL_HE.md`.
 
 ## סטטוס
 

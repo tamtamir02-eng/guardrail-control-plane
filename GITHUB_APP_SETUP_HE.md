@@ -1,6 +1,6 @@
-# הקמה ידנית של GitHub App — נקודת עצירה מאושרת
+# HOSTING REFERENCE — GitHub App deployment עתידי
 
-> מסמך זה מתאר deployment עתידי hosted. עבור ה־Local Live Shadow ב־Windows השתמש ב־`GITHUB_APP_MANUAL_SETUP_HE.md`; הוא המסמך הסמכותי לשלב הנוכחי.
+> מסמך זה הוא reference ל־productionization עתידי ואינו הוראה לבצע hosting כעת. הארכיטקטורה הסמכותית נמצאת ב־`GUARDRAIL_ARCHITECTURE_FINAL_HE.md`. מסמך ה־Local Live Shadow הוא היסטורי בלבד.
 
 רישום App דורש פעולה שלך בממשק GitHub ו־deployment HTTPS נגיש ל־webhooks. אין לשלוח private key או webhook secret בצ׳אט.
 
