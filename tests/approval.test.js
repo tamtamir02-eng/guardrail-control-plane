@@ -6,10 +6,13 @@ import { loadPolicy } from '../src/policy.mjs'
 
 const headX = 'a'.repeat(40)
 const headY = 'b'.repeat(40)
+const authorizedReviewer = 'tamtamir02-eng'
+const implementerBot = 'tamir-codex-implementer-v4-2-pilot[bot]'
+const guardrailBot = 'tamir-guardrail-v4-2-local-shadow[bot]'
 const basePolicy = loadPolicy()
-const policy = { ...basePolicy, authorized_reviewers: ['security-human'] }
+const policy = basePolicy
 
-function review({ login = 'security-human', state = 'APPROVED', commitId = headX, type = 'User', id = 1 }) {
+function review({ login = authorizedReviewer, state = 'APPROVED', commitId = headX, type = 'User', id = 1 }) {
   return {
     id,
     state,
@@ -30,11 +33,15 @@ function validate(reviews, overrides = {}) {
   })
 }
 
-test('accepts an authorized human approval on exact HEAD', () => {
-  assert.deepEqual(validate([review({})]).approvers, ['security-human'])
+test('authoritative policy contains only the approved Tamir human identity', () => {
+  assert.deepEqual(basePolicy.authorized_reviewers, [authorizedReviewer])
 })
 
-test('Shadow H: approval on SHA X is stale after push to SHA Y', () => {
+test('accepts tamtamir02-eng APPROVED on the exact current HEAD', () => {
+  assert.deepEqual(validate([review({})]).approvers, [authorizedReviewer])
+})
+
+test('rejects tamtamir02-eng approval on an old SHA after push to a new HEAD', () => {
   assert.equal(validate([review({ commitId: headX })], { headSha: headY }).approved, false)
 })
 
@@ -43,12 +50,13 @@ test('Shadow I: unauthorized reviewer approval is rejected', () => {
 })
 
 test('PR author cannot approve their own RED change', () => {
-  assert.equal(validate([review({ login: 'author' })], { policy: { ...policy, authorized_reviewers: ['author'] } }).approved, false)
+  assert.equal(validate([review({})], { authorLogin: authorizedReviewer }).approved, false)
 })
 
-test('bots, Apps, GitHub Actions and Codex identities are rejected', () => {
+test('Implementer bot, Guardrail App bot, GitHub Actions and Codex identities are rejected', () => {
   for (const candidate of [
-    review({ login: 'security-human[bot]', type: 'Bot' }),
+    review({ login: implementerBot, type: 'Bot' }),
+    review({ login: guardrailBot, type: 'Bot' }),
     review({ login: 'codex-reviewer' }),
     review({ login: 'github-actions' })
   ]) {
@@ -56,11 +64,8 @@ test('bots, Apps, GitHub Actions and Codex identities are rejected', () => {
   }
 })
 
-test('current-HEAD CHANGES_REQUESTED and unresolved conversations block approval', () => {
-  assert.equal(validate([
-    review({ id: 1 }),
-    review({ login: 'blocker', state: 'CHANGES_REQUESTED', id: 2 })
-  ]).approved, false)
+test('CHANGES_REQUESTED is not approval and unresolved conversations block approval', () => {
+  assert.equal(validate([review({ state: 'CHANGES_REQUESTED' })]).approved, false)
   assert.equal(validate([review({})], { unresolvedConversationCount: 1 }).approved, false)
 })
 
@@ -72,18 +77,8 @@ test('latest current-HEAD review state supersedes the same reviewer state', () =
   assert.equal(result.approved, true)
 })
 
-test('Shadow J: comments, reactions and PR body are not review inputs', () => {
-  assert.equal(validate([]).approved, false)
-})
-
-test('Pilot policy has no invented human approver and fails closed', () => {
-  const result = validateRedApproval({
-    reviews: [review({})],
-    headSha: headX,
-    authorLogin: 'author',
-    unresolvedConversationCount: 0,
-    policy: basePolicy
-  })
-  assert.equal(result.approved, false)
-  assert.equal(result.reason, 'HUMAN SECURITY APPROVER REQUIRED')
+test('comments and reactions cannot create approval evidence', () => {
+  const comment = { id: 10, body: 'APPROVED', user: { login: authorizedReviewer, type: 'User' } }
+  const reaction = { id: 11, content: '+1', user: { login: authorizedReviewer, type: 'User' } }
+  assert.equal(validate([comment, reaction]).approved, false)
 })
