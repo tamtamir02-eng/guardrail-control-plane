@@ -102,6 +102,15 @@ V4.1 legacy branches המיועדים להסרה לאחר שימור מסמך ז
 
 V4.2 evidence branches ו־PR #18 נשארים בשלב cleanup זה ואינם נמחקים.
 
+## Legacy cleanup result — 2026-08-28
+
+- PRs #4, #5, #6 ו־#7 נסגרו ללא merge לאחר פרסום אינדקס זה ב־Control Plane PR [#3](https://github.com/tamtamir02-eng/guardrail-control-plane/pull/3).
+- ה־remote branch refs `pilot/v4.1-yellow-policy`, ‏`pilot/v4.1-red-auth`, ‏`codex/v4.1-final-yellow` ו־`codex/v4.1-final-red` נמחקו.
+- ארבעת ה־local branch refs וארבעת ה־remote-tracking refs המקבילים נמחקו.
+- ה־commits המתועדים נשארו נגישים דרך GitHub commit API ועמודי ה־PR הסגורים; history לא שוכתב.
+- PR [#19](https://github.com/tamtamir02-eng/codex-guardrail-pilot/pull/19), branch `codex/legacy-cleanup-docs`, נפתח על ידי Implementer App כדי לעדכן את README של repository הניסוי. הוא לא מוזג.
+- לא בוצע cleanup ל־V4.2 evidence branches או ל־PR #18.
+
 ## Ruleset snapshot checksums לפני הכנסת העותקים ל־repository
 
 - Phase A before: `56E8D1BCA9EC65690B35754EF0D82D90EC1966BC3505ECEA07DBD43CFEA33E15`.
