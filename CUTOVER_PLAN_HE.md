@@ -1,28 +1,22 @@
-# תוכנית Cutover — לא לביצוע ללא אישור חדש
+# HISTORICAL / SUPERSEDED — תוכנית Cutover של V4.2
 
-## תנאי סף
+מסמך זה נשמר כראיה היסטורית בלבד. הוא אינו מתאר את ה־enforcement הנוכחי ואסור להשתמש בו כ־runbook פעיל.
 
-- GitHub App רשום ומותקן רק על `codex-guardrail-pilot`.
-- App permissions וה־webhooks תואמים בדיוק ל־manifest.
-- deployment מקובע ל־control-plane commit SHA/image digest.
-- `guardrail-v4.2` רץ ב־shadow על PRs אמיתיים ומציג App ID צפוי.
-- Shadow Tests A–J הושלמו live, כולל same-name Action check.
-- קיים human security approver אמיתי ונפרד לפני מעבר RED ל־SUCCESS.
-- בוצע audit נפרד להגנת repository ה־control-plane עצמו.
+## התוצאה שבוצעה
 
-## שינוי Ruleset עתידי מדויק — Phase 1
+- Ruleset: `Guardrail V4 - main protection`, ID `21314805`.
+- Phase A הוסיף את `guardrail-v4.2` עם integration ID `4719039` לצד ה־checks הקיימים.
+- Phase B הסיר את `guardrail-policy` הישן עם integration ID `15368`.
+- required checks הסופיים הם `validate`/`15368` ו־`guardrail-v4.2`/`4719039` בלבד.
+- PR נדרש, approval אחד נדרש, approval של ה־push האחרון נדרש, stale approvals נדחים, conversations חייבות להיפתר, strict checks ו־non-fast-forward פעילים.
+- Restrict updates נשאר פעיל וה־bypass נשאר Repository Admin במצב Pull Request only.
 
-אם יאושר cutover, השינוי היחיד בשלב הראשון יהיה הוספת:
+ה־snapshots המלאים של Phase A ו־Phase B שמורים תחת `evidence/rulesets/`, וההקשר נמצא ב־[`PILOT_EVIDENCE_INDEX_HE.md`](PILOT_EVIDENCE_INDEX_HE.md).
 
-```text
-context: guardrail-v4.2
-integration_id: <GUARDRAIL_GITHUB_APP_ID>
-```
+## התכנון ההיסטורי
 
-ל־required status checks של Ruleset `21314805` לצד `validate` ו־`guardrail-policy` הקיימים. אין לשנות target, enforcement, bypass actors, PR requirements, approvals, strict mode, stale dismissal, conversation resolution או non-fast-forward.
+התכנון המקורי דרש observation window שבו `validate`, ‏`guardrail-policy` ו־`guardrail-v4.2` היו required במקביל. שלב זה הושלם. לאחר verification נפרד הוסר `guardrail-policy` מרשימת ה־required checks ללא שינוי אחר ב־Ruleset.
 
-`guardrail-policy` הישן יישאר required בזמן cutover הראשוני. הסרתו תהיה שינוי נפרד, לאחר observation window ואישור מפורש נוסף.
+## Rollback עתידי
 
-## Rollback
-
-Rollback מוגבל להסרת `guardrail-v4.2` מרשימת required checks תוך השארת `validate` ו־`guardrail-policy`. אין למחוק App, logs או evidence לפני תחקור.
+Rollback אינו מוגדר עוד על ידי ההוראות הישנות של V4.1. כל rollback עתידי הוא שינוי security-sensitive חדש שדורש snapshot, diff, אישור מפורש ואימות נפרד. אין להסיר checks, App, logs או evidence על בסיס המסמך ההיסטורי הזה.

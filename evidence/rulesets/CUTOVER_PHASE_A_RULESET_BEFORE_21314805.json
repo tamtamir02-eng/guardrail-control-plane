@@ -1,0 +1,77 @@
+{
+  "id": 21314805,
+  "name": "Guardrail V4 - main protection",
+  "target": "branch",
+  "source_type": "Repository",
+  "source": "tamtamir02-eng/codex-guardrail-pilot",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": [
+        "refs/heads/main"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "dismiss_stale_reviews_on_push": true,
+        "required_reviewers": [],
+        "require_code_owner_review": false,
+        "require_last_push_approval": true,
+        "required_review_thread_resolution": true,
+        "require_extra_approval_for_unattributed_changes": true,
+        "allowed_merge_methods": [
+          "merge",
+          "squash",
+          "rebase"
+        ]
+      }
+    },
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": true,
+        "do_not_enforce_on_create": true,
+        "required_status_checks": [
+          {
+            "context": "validate",
+            "integration_id": 15368
+          },
+          {
+            "context": "guardrail-policy",
+            "integration_id": 15368
+          }
+        ]
+      }
+    },
+    {
+      "type": "non_fast_forward"
+    },
+    {
+      "type": "update"
+    }
+  ],
+  "node_id": "RRS_lACqUmVwb3NpdG9yec5QLpnIzgFFPPU",
+  "created_at": "2026-08-24T21:17:41.887+03:00",
+  "updated_at": "2026-08-26T14:03:02.854+03:00",
+  "bypass_actors": [
+    {
+      "actor_id": 5,
+      "actor_type": "RepositoryRole",
+      "bypass_mode": "pull_request"
+    }
+  ],
+  "current_user_can_bypass": "pull_requests_only",
+  "_links": {
+    "self": {
+      "href": "https://api.github.com/repos/tamtamir02-eng/codex-guardrail-pilot/rulesets/21314805"
+    },
+    "html": {
+      "href": "https://github.com/tamtamir02-eng/codex-guardrail-pilot/rules/21314805"
+    }
+  }
+}
