@@ -4,6 +4,9 @@ steps:
     args:
       - -ceu
       - |
+        apt-get update
+        apt-get install -y --no-install-recommends git ca-certificates
+        rm -rf /var/lib/apt/lists/*
         npm ci --ignore-scripts --no-audit --no-fund
         npm run lint
         npm test
