@@ -1,0 +1,16 @@
+queue:
+  name: guardrail-v42-evaluations
+  location: me-west1
+  rateLimits:
+    maxConcurrentDispatches: 2
+    maxDispatchesPerSecond: 2
+  retryConfig:
+    maxAttempts: 5
+    minBackoff: 5s
+    maxBackoff: 300s
+    maxDoublings: 5
+  target:
+    url: WORKER_RUN_APP_URL/tasks/evaluate
+    oidcServiceAccount: GUARDRAIL_TASK_CALLER_SA
+    audience: WORKER_RUN_APP_URL
+    dispatchDeadline: 300s

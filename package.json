@@ -1,9 +1,9 @@
 {
   "name": "guardrail-control-plane",
-  "version": "4.2.0-shadow",
+  "version": "4.2.0",
   "private": true,
   "type": "module",
-  "description": "Trusted external control plane for the Guardrail V4.2 pilot",
+  "description": "Trusted external control plane for Guardrail V4.2",
   "engines": {
     "node": ">=20"
   },
@@ -12,6 +12,9 @@
     "test": "node --test",
     "doctor": "node scripts/doctor.mjs",
     "preflight": "node scripts/preflight.mjs",
+    "preflight:production": "node scripts/preflight.mjs",
+    "integration:local": "node --test tests/local-integration.test.js",
+    "regression:fixtures": "node scripts/run-shadow-fixtures.mjs",
     "shadow:fixtures": "node scripts/run-shadow-fixtures.mjs",
     "start": "node src/server.mjs",
     "start:local": "powershell.exe -NoProfile -File scripts/start-local.ps1"

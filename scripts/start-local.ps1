@@ -11,6 +11,8 @@ $allowedVariables = @(
     'GITHUB_WEBHOOK_SECRET',
     'GUARDRAIL_TARGET_REPOSITORY',
     'GUARDRAIL_EXPECTED_COMMIT',
+    'GUARDRAIL_RUNTIME_ROLE',
+    'GUARDRAIL_PREFLIGHT_MODE',
     'HOST',
     'PORT'
 )
@@ -47,9 +49,11 @@ foreach ($line in Get-Content -LiteralPath $resolvedEnvFile) {
 
 Push-Location -LiteralPath $repositoryRoot
 try {
+    [Environment]::SetEnvironmentVariable('GUARDRAIL_RUNTIME_ROLE', 'local', 'Process')
+    [Environment]::SetEnvironmentVariable('GUARDRAIL_PREFLIGHT_MODE', 'local', 'Process')
     & node scripts/preflight.mjs
     if ($LASTEXITCODE -ne 0) {
-        throw 'Local shadow preflight failed; the server was not started.'
+        throw 'Local preflight failed; the server was not started.'
     }
     & node src/server.mjs
     exit $LASTEXITCODE

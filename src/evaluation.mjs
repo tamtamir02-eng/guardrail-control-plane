@@ -32,7 +32,8 @@ export async function evaluatePullRequest({
   installationToken,
   github,
   gitEvaluator,
-  policy
+  policy,
+  idempotencyKey
 }) {
   const start = await github.getPullRequest(owner, repo, number)
   const headSha = start?.head?.sha
@@ -49,7 +50,24 @@ export async function evaluatePullRequest({
     throw new FailClosedError('Pull request target does not match the webhook repository')
   }
   const baseSha = await github.getBranchHead(owner, repo, baseBranch)
-  const checkRun = await github.createCheckRun(owner, repo, headSha)
+  const externalId = typeof idempotencyKey === 'string' ? `${idempotencyKey}:${baseSha}` : undefined
+  const existing = externalId && typeof github.findCheckRunByExternalId === 'function'
+    ? await github.findCheckRunByExternalId(owner, repo, headSha, externalId)
+    : null
+  if (existing?.status === 'completed') {
+    if (typeof existing.conclusion !== 'string' || existing.conclusion.length === 0) {
+      throw new FailClosedError('Completed idempotent check has no conclusion')
+    }
+    return {
+      checkRunId: existing.id,
+      headSha,
+      conclusion: existing.conclusion,
+      invalidated: false,
+      duplicate: true,
+      classification: null
+    }
+  }
+  const checkRun = existing ?? await github.createCheckRun(owner, repo, headSha, externalId)
   if (!Number.isInteger(Number(checkRun?.id))) throw new FailClosedError('Created check run has no ID')
 
   try {
@@ -69,7 +87,7 @@ export async function evaluatePullRequest({
     const classification = classifyChanges(diff.records, policy)
     let approval = null
     let conclusion = 'success'
-    let title = `${classification.classification} change accepted in shadow mode`
+    let title = `${classification.classification} change accepted by Guardrail V4.2`
 
     if (classification.requiresApproval) {
       const reviews = await github.listReviews(owner, repo, number)
@@ -110,7 +128,7 @@ export async function evaluatePullRequest({
       title,
       summary: summaryFor(classification, approval)
     })
-    return { checkRunId: checkRun.id, headSha, conclusion, invalidated: false, classification, approval }
+    return { checkRunId: checkRun.id, headSha, conclusion, invalidated: false, duplicate: Boolean(existing), classification, approval }
   } catch (error) {
     await github.updateCheckRun(owner, repo, checkRun.id, {
       conclusion: 'failure',

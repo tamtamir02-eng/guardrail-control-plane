@@ -8,10 +8,11 @@ function repositoryPath(owner, repo) {
 }
 
 export class GitHubClient {
-  constructor(token, fetchImpl = fetch) {
+  constructor(token, fetchImpl = fetch, appId = null) {
     if (typeof token !== 'string' || token.length < 20) throw new FailClosedError('Missing installation token')
     this.token = token
     this.fetchImpl = fetchImpl
+    this.appId = Number.isInteger(Number(appId)) ? Number(appId) : null
   }
 
   async request(path, { method = 'GET', body } = {}) {
@@ -95,17 +96,33 @@ export class GitHubClient {
     throw new FailClosedError('Review conversation pagination limit exceeded')
   }
 
-  createCheckRun(owner, repo, headSha) {
+  createCheckRun(owner, repo, headSha, externalId) {
     return this.request(`${repositoryPath(owner, repo)}/check-runs`, {
       method: 'POST',
       body: {
         name: 'guardrail-v4.2',
         head_sha: headSha,
+        external_id: externalId,
         status: 'in_progress',
         started_at: new Date().toISOString(),
         output: { title: 'Guardrail V4.2 evaluation started', summary: `Evaluating exact HEAD ${headSha}` }
       }
     })
+  }
+
+  async findCheckRunByExternalId(owner, repo, headSha, externalId) {
+    if (typeof externalId !== 'string' || externalId.length === 0) return null
+    for (let page = 1; page <= 100; page += 1) {
+      const response = await this.request(
+        `${repositoryPath(owner, repo)}/commits/${encodeURIComponent(headSha)}/check-runs?check_name=guardrail-v4.2&filter=all&per_page=100&page=${page}`
+      )
+      if (!Array.isArray(response?.check_runs)) throw new FailClosedError('Check run list is malformed')
+      const found = response.check_runs.find((check) => check?.external_id === externalId
+        && (this.appId === null || Number(check?.app?.id) === this.appId))
+      if (found) return found
+      if (response.check_runs.length < 100) return null
+    }
+    throw new FailClosedError('Check run pagination limit exceeded')
   }
 
   updateCheckRun(owner, repo, checkRunId, { conclusion, title, summary }) {

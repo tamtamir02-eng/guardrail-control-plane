@@ -1,0 +1,47 @@
+steps:
+  - name: node:20.19.5-bookworm-slim
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        npm ci --ignore-scripts --no-audit --no-fund
+        npm run lint
+        npm test
+        npm run regression:fixtures
+        npm run integration:local
+
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        docker pull node:20.19.5-bookworm-slim
+        docker image inspect \
+          --format='{{index .RepoDigests 0}}' \
+          node:20.19.5-bookworm-slim > /workspace/node-base-image.txt
+        grep -E '^node@sha256:[0-9a-f]{64}$' /workspace/node-base-image.txt
+
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -ceu
+      - |
+        base_image="$(cat /workspace/node-base-image.txt)"
+        docker build \
+          --build-arg "NODE_BASE_IMAGE=$${base_image}" \
+          --build-arg "VCS_REF=${COMMIT_SHA}" \
+          --tag "${_IMAGE_URI}:${COMMIT_SHA}" \
+          .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_IMAGE_URI}:${COMMIT_SHA}
+
+substitutions:
+  _IMAGE_URI: me-west1-docker.pkg.dev/project-db4e3d34-c7dd-452e-a81/guardrail/control-plane
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1200s

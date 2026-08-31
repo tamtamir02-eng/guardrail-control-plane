@@ -1,0 +1,79 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: guardrail-ingress
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "3"
+        run.googleapis.com/startup-cpu-boost: "true"
+    spec:
+      serviceAccountName: GUARDRAIL_INGRESS_RUNTIME_SA
+      containerConcurrency: 20
+      timeoutSeconds: 15
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/guardrail/control-plane@sha256:IMAGE_DIGEST
+          ports:
+            - name: http1
+              containerPort: 8080
+          env:
+            - name: GUARDRAIL_RUNTIME_ROLE
+              value: ingress
+            - name: GUARDRAIL_PREFLIGHT_MODE
+              value: production
+            - name: GUARDRAIL_TARGET_REPOSITORY
+              value: tamtamir02-eng/codex-guardrail-pilot
+            - name: GUARDRAIL_EXPECTED_COMMIT
+              value: FULL_COMMIT_SHA
+            - name: GUARDRAIL_DEPLOYED_COMMIT
+              value: FULL_COMMIT_SHA
+            - name: GUARDRAIL_BUILD_COMMIT_PATH
+              value: /app/BUILD_COMMIT
+            - name: GUARDRAIL_IMAGE_DIGEST
+              value: sha256:IMAGE_DIGEST
+            - name: GUARDRAIL_VERSION
+              value: 4.2.0
+            - name: GITHUB_WEBHOOK_SECRET_PATH
+              value: /var/run/secrets/guardrail/webhook-secret
+            - name: GOOGLE_CLOUD_PROJECT
+              value: PROJECT_ID
+            - name: GUARDRAIL_TASKS_LOCATION
+              value: me-west1
+            - name: GUARDRAIL_TASKS_QUEUE
+              value: guardrail-v42-evaluations
+            - name: GUARDRAIL_WORKER_URL
+              value: WORKER_RUN_APP_URL
+            - name: GUARDRAIL_TASKS_OIDC_SERVICE_ACCOUNT
+              value: GUARDRAIL_TASK_CALLER_SA
+            - name: GUARDRAIL_TASKS_OIDC_AUDIENCE
+              value: WORKER_RUN_APP_URL
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /health
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /health
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 3
+          volumeMounts:
+            - name: webhook-secret
+              mountPath: /var/run/secrets/guardrail
+      volumes:
+        - name: webhook-secret
+          secret:
+            secretName: guardrail-v42-webhook-secret
+            items:
+              - key: SECRET_VERSION
+                path: webhook-secret

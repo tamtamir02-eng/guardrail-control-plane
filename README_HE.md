@@ -1,6 +1,6 @@
 # Guardrail V4.2 — Trusted Control Plane
 
-זהו ה־Control Plane החיצוני של Autonomous Development Guardrail V4.2 עבור repository הניסוי `tamtamir02-eng/codex-guardrail-pilot`. הוא אינו מותקן גלובלית ואינו מריץ קוד מתוך Pull Request.
+זהו ה־Control Plane החיצוני של Autonomous Development Guardrail V4.2 עבור `tamtamir02-eng/codex-guardrail-pilot`. הוא אינו מותקן גלובלית ואינו מריץ קוד מתוך Pull Request.
 
 ## מצב נוכחי
 
@@ -9,7 +9,7 @@
 - `validate` נדרש מ־GitHub Actions App ID `15368`.
 - `guardrail-policy` של V4.1 אינו required ואינו חלק מה־enforcement הפעיל.
 - המאשר האנושי המורשה הוא `tamtamir02-eng`, ורק review מסוג `APPROVED` על HEAD הנוכחי יכול לספק approval נדרש.
-- ההפעלה הנוכחית עדיין מקומית דרך Windows ו־Smee ואינה deployment יציב ל־production.
+- ה־runtime תומך כעת בתפקידי Cloud Run נפרדים: ingress ציבורי ו־worker פרטי דרך Cloud Tasks. לא בוצע עדיין deployment, והנתיב הפעיל נשאר Windows/Smee עד cutover מאושר.
 
 הארכיטקטורה הסמכותית מתועדת ב־[`GUARDRAIL_ARCHITECTURE_FINAL_HE.md`](GUARDRAIL_ARCHITECTURE_FINAL_HE.md). אינדקס הראיות נמצא ב־[`PILOT_EVIDENCE_INDEX_HE.md`](PILOT_EVIDENCE_INDEX_HE.md).
 
@@ -48,10 +48,10 @@ npm run shadow:fixtures
 npm run doctor
 ```
 
-שם הפקודה `shadow:fixtures` נשמר כדי לשמור תאימות ל־test suite ההיסטורי; הבדיקות עצמן הן regression tests של מנגנון V4.2 הפעיל.
+שם הפקודה `shadow:fixtures` נשמר כ־alias לתאימות היסטורית; `regression:fixtures` הוא השם המועדף. `integration:local` בודק webhook → ingress → local task adapter → worker → policy evaluation.
 
 אין dependencies חיצוניות ב־Node. נדרשים Node.js 20 ומעלה ו־Git CLI. `npm run preflight` מאמת secrets חיצוניים, repository יעד, commit מקובע, working tree נקי ו־port זמין.
 
-## מגבלת hosting
+## Runtime production
 
-ה־deployment הנוכחי מבוסס על `127.0.0.1:3000` ועל Smee relay. לפני שימוש בפרויקט אמיתי נדרש hosting עם HTTPS, Node.js, Git, secret store, webhook endpoint יציב, uptime וניטור, environment variables מוגנים ו־deployment immutable המקובע ל־commit או image digest.
+`GUARDRAIL_RUNTIME_ROLE` מקבל `ingress`, `worker` או `local`. production מאזין כברירת מחדל על `0.0.0.0:$PORT`; ה־local wrapper נשאר על loopback. פרטי הארכיטקטורה נמצאים ב־`../CLOUD_RUN_RUNTIME_ARCHITECTURE_HE.md`, ותבניות review בלבד נמצאות ב־`deploy/cloud-run/`.

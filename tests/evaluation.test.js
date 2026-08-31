@@ -104,3 +104,64 @@ test('malformed evaluator result is published as failure-closed', async () => {
   )
   assert.equal(github.updated[0].conclusion, 'failure')
 })
+
+test('completed check with the same external id makes a duplicate delivery idempotent', async () => {
+  const github = new FakeGitHub()
+  let queriedExternalId
+  github.findCheckRunByExternalId = async (owner, repo, head, externalId) => {
+    queriedExternalId = externalId
+    return { id: 77, status: 'completed', conclusion: 'success' }
+  }
+  const result = await evaluatePullRequest({
+    owner: 'owner',
+    repo: 'repo',
+    number: 7,
+    installationToken: 't'.repeat(40),
+    github,
+    gitEvaluator: async () => { throw new Error('must not run for a completed duplicate') },
+    policy: loadPolicy(),
+    idempotencyKey: 'delivery:7'
+  })
+  assert.equal(result.duplicate, true)
+  assert.equal(result.checkRunId, 77)
+  assert.equal(github.created.length, 0)
+  assert.equal(queriedExternalId, `delivery:7:${baseSha}`)
+  assert.equal(github.heads.length, 1)
+  assert.equal(github.bases.length, 1)
+})
+
+test('Git failure is concluded as failure and never as success', async () => {
+  const github = new FakeGitHub()
+  await assert.rejects(evaluatePullRequest({
+    owner: 'owner',
+    repo: 'repo',
+    number: 7,
+    installationToken: 't'.repeat(40),
+    github,
+    gitEvaluator: async () => { throw new Error('git unavailable') },
+    policy: loadPolicy()
+  }), /git unavailable/)
+  assert.equal(github.updated.at(-1).conclusion, 'failure')
+  assert.equal(github.updated.some((update) => update.conclusion === 'success'), false)
+})
+
+test('GitHub re-read failure is concluded as failure and never as success', async () => {
+  const github = new FakeGitHub()
+  const original = github.getPullRequest.bind(github)
+  let reads = 0
+  github.getPullRequest = async () => {
+    reads += 1
+    if (reads === 2) throw new Error('GitHub API unavailable')
+    return original()
+  }
+  await assert.rejects(run(github, [{ status: 'M', destinationPath: 'src/file.js', sourcePath: null }]), /GitHub API unavailable/)
+  assert.equal(github.updated.at(-1).conclusion, 'failure')
+  assert.equal(github.updated.some((update) => update.conclusion === 'success'), false)
+})
+
+test('invalid policy configuration is concluded as failure and never as success', async () => {
+  const github = new FakeGitHub()
+  await assert.rejects(run(github, [{ status: 'M', destinationPath: 'src/file.js', sourcePath: null }], {}), /malformed policy/)
+  assert.equal(github.updated.at(-1).conclusion, 'failure')
+  assert.equal(github.updated.some((update) => update.conclusion === 'success'), false)
+})

@@ -68,7 +68,7 @@ export async function processWebhook({
     privateKeyPath: env.GITHUB_PRIVATE_KEY_PATH,
     installationId
   })
-  const github = dependencies.githubFactory?.(token) ?? new GitHubClient(token)
+  const github = dependencies.githubFactory?.(token) ?? new GitHubClient(token, fetch, env.GITHUB_APP_ID)
   const policy = dependencies.policy ?? loadPolicy()
   const evaluator = dependencies.evaluator ?? evaluatePullRequest
   const gitEvaluator = dependencies.gitEvaluator ?? fetchAndAnalyzePullRequest
